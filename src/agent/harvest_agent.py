@@ -35,8 +35,20 @@ class HarvestAgent(DQNAgent):
     """
     def __init__(self,unique_id,model,agent_type,max_days,min_width,max_width,min_height,max_height,training,checkpoint_path,epsilon,write_norms,shared_replay_buffer=None):
         self.actions = self._generate_actions(unique_id, model.get_num_agents())
+        
         #dqn agent class handles learning and action selection
-        super().__init__(unique_id,model,agent_type,self.actions,training,checkpoint_path,epsilon,shared_replay_buffer=shared_replay_buffer)
+        # super().__init__(unique_id,model,agent_type,self.actions,training,checkpoint_path,epsilon,shared_replay_buffer=shared_replay_buffer)
+        super().__init__(
+            unique_id,
+            model,
+            agent_type,
+            self.actions,
+            training,
+            checkpoint_path,
+            epsilon,
+            shared_replay_buffer
+        )
+
         self.start_health = 0.8
         self.health = self.start_health
         self.berries = 0

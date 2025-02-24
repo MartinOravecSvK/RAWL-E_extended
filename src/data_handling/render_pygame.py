@@ -43,7 +43,7 @@ class RenderPygame():
             if event.type == pygame.QUIT:
                 break
         self.screen.fill(self.colour_map["black"])
-        for a in modelInst.schedule.agents:
+        for a in modelInst.agents:
             if hasattr(a, "off_grid") and a.off_grid:
                 continue
             x = a.pos[0] * self.block_size

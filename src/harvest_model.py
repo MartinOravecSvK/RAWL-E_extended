@@ -1,5 +1,4 @@
 from mesa import Model
-from mesa.time import RandomActivation
 from mesa.space import MultiGrid
 import pandas as pd
 import numpy as np
@@ -54,7 +53,7 @@ class HarvestModel(Model):
         self.max_days = max_days
         self.max_episodes = max_episodes
         self.min_epsilon = 0.01
-        self.schedule = RandomActivation(self)
+        # self.schedule = RandomActivation(self)
         self.max_width = max_width
         self.max_height = max_height
         self.grid = MultiGrid(self.max_width, self.max_height, False)
@@ -79,7 +78,8 @@ class HarvestModel(Model):
         """
         Steps the schedule of agents, updates data collection, handles dead agents and foraged berries
         """
-        self.schedule.step()
+        # self.step()
+        self.agents.shuffle_do("step")
         self.day += 1
         self._update_schedule()
         self.epsilon = self._mean_epsilon()
@@ -90,7 +90,7 @@ class HarvestModel(Model):
             self.end_day = self.day
             if self.write_norms:
                 self._append_norm_dict_to_file(self.emerged_norms, "data/results/current_run/"+self.filepath+"_emerged_norms.json")
-            for a in self.schedule.agents:
+            for a in self.agents:
                 if a.agent_type != "berry":
                     if a.off_grid == False:
                         a.days_survived = self.day
@@ -142,7 +142,7 @@ class HarvestModel(Model):
         Get the well-being of a society; iterates over all agents in the society, excluding the observer if the agent is observing
         """
         society_well_being = np.array([])
-        for a in self.schedule.agents:
+        for a in self.agents:
             if (a.unique_id == observer.unique_id and not include_observer) or a.agent_type == "berry":
                 continue
             elif a.done == False:
@@ -180,7 +180,7 @@ class HarvestModel(Model):
         self.berry_id = len(self.living_agents) + 1
 
     def _add_agent(self, a):
-        self.schedule.add(a)
+        self.agents.add(a)
         self._place_agent_in_allotment(a)
         if a.agent_type != "berry":
             self.agent_id += 1
@@ -195,7 +195,7 @@ class HarvestModel(Model):
         self.episode += 1
         self.total_episode_reward = 0
         self._clear_grid()
-        for a in self.schedule.agents:
+        for a in self.agents:
             if a.agent_type != "berry":
                 self._reset_agent(a)
                 num_agents += 1
@@ -335,7 +335,7 @@ class HarvestModel(Model):
             return
         emergence_count = len(self.living_agents) * self.societal_norm_emergence_threshold
         current_emerged_norms = {}
-        for agent in self.schedule.agents:
+        for agent in self.agents:
             if agent.agent_type != "berry":
                 for norm_name, norm_value in agent.norms_module.behaviour_base.items():
                     current_emerged_norms = self._update_norm(norm_name, norm_value, current_emerged_norms)
@@ -357,7 +357,7 @@ class HarvestModel(Model):
     
     def _update_schedule(self):
         #check for dead agents & foraged berries
-        for a in self.schedule.agents:
+        for a in self.agents:
             if a.agent_type == "berry" and a.foraged == True:
                 self._reset_berry(a, False)
             if a.agent_type != "berry":
@@ -388,7 +388,7 @@ class HarvestModel(Model):
         self.grid.move_agent(agent, cell)
     
     def _clear_grid(self):
-        for a in self.schedule.agents:
+        for a in self.agents:
             if a.agent_type != "berry" and a.off_grid:
                 continue
             self.grid.remove_agent(a)
@@ -397,11 +397,11 @@ class HarvestModel(Model):
         self.grid.remove_agent(agent)
         agent.off_grid = True
         agent.days_left_to_live = 0
-        self.living_agents = [a for a in self.schedule.agents if a.agent_type != "berry" and a.off_grid == False]
+        self.living_agents = [a for a in self.agents if a.agent_type != "berry" and a.off_grid == False]
     
     def _new_berry(self,min_width,max_width,min_height,max_height,allocation_id=None):
         berry = Berry(self.berry_id,self,min_width,max_width,min_height,max_height,allocation_id)
-        self.schedule.add(berry)
+        self.agents.add(berry)
         self.berry_id += 1
         return berry
     
@@ -423,7 +423,7 @@ class HarvestModel(Model):
     def _gini_berries_consumed(self):
         if len(self.living_agents) == 0:
             return 0
-        berries_consumed = [a.berries_consumed for a in self.schedule.agents if a.agent_type != "berry"]
+        berries_consumed = [a.berries_consumed for a in self.agents if a.agent_type != "berry"]
         x = sorted(berries_consumed)
         s = sum(x)
         if s == 0:
@@ -435,7 +435,7 @@ class HarvestModel(Model):
     def _mean_loss(self):
         m = 0
         if self.training:
-            for agent in self.schedule.agents:
+            for agent in self.agents:
                 if agent.agent_type != "berry":
                     if len(agent.losses) > 1:
                         m += np.mean(agent.losses)
@@ -446,7 +446,7 @@ class HarvestModel(Model):
     
     def _mean_reward(self):
         m = 0
-        for agent in self.schedule.agents:
+        for agent in self.agents:
             if agent.agent_type != "berry":
                 m += agent.total_episode_reward
         if m == 0:
@@ -456,7 +456,7 @@ class HarvestModel(Model):
     
     def _mean_epsilon(self):
         m = 0
-        for agent in self.schedule.agents:
+        for agent in self.agents:
             if agent.agent_type != "berry":
                 m += agent.epsilon
         if m == 0:

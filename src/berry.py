@@ -9,7 +9,8 @@ class Berry(Agent):
         min/max width/height -- dimensions of grid berry can be assigned to (whole grid for training)
     """
     def __init__(self,unique_id,model,min_width,max_width,min_height,max_height,allocated_agent_id=None):
-        super().__init__(unique_id, model)
+        super().__init__(model)
+        self.unique_id = unique_id
         self.agent_type = "berry"
         self.foraged = False
         self.allocated_agent_id = allocated_agent_id

@@ -1,11 +1,12 @@
 name: renv
 channels:
   - defaults
+  - conda-forge
 dependencies:
   - python=3.11
   - pandas
   - seaborn
   - matplotlib
-  - tensorflow=2.16.2
+  - tensorflow
   - numpy
   - mesa

@@ -41,7 +41,7 @@ class DQN:
             self.experience = shared_replay_buffer
         self.min_experiences = 100
         self.max_experiences = 100000
-        self.optimiser = keras.optimizers.Adam(learning_rate=self.lr)
+        self.optimiser = tf.keras.optimizers.Adam(learning_rate=self.lr)
         self.delta = 1.0
         
         if self.training:

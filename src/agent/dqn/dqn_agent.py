@@ -28,8 +28,8 @@ class DQNAgent(Agent):
         losses -- history of losses
     """
     def __init__(self,unique_id,model,agent_type,actions,training,checkpoint_path,epsilon,shared_replay_buffer=None):
-        # super().__init__(unique_id, model)
-        super().__init__(model)
+        super().__init__(unique_id, model)
+        # super().__init__(model)
         self.unique_id = unique_id
         self.epsilon = epsilon
         self.min_exploration_prob = 0.01
